@@ -1,0 +1,187 @@
+GEMINI AI TELEGRAM CHATBOT — BATAFSIL TEXNIK DOKUMENTATSIYA
+
+
+1. LOYIHA MAQSADI
+
+Ushbu loyiha Google Gemini 2.5 Flash modeli asosida qurilgan sun’iy intellekt chatbot bo‘lib, oldindan tayyorlangan savol-javoblar to‘plami (data.json) asosida foydalanuvchilarning savollariga mazmunan mos va aniq javob qaytarish uchun ishlab chiqilgan.
+
+Chatbot quyidagi muammolarni hal qiladi:
+- Foydalanuvchi savolni aynan datasetdagi shaklda bermasa ham tushunish
+- Savol lotin yoki kirill alifbosida bo‘lishidan qat’i nazar to‘g‘ri javob berish
+- Javobni foydalanuvchi yozgan alifboda qaytarish
+- Telegram orqali qulay va tezkor foydalanish
+- Serverda doimiy (24/7) ishlash
+
+
+2. ASOSIY FUNKSIONAL TALABLAR
+
+Chatbot quyidagilarni bajaradi:
+- Foydalanuvchi savolini qabul qiladi
+- Savol mazmunini tahlil qiladi
+- Dataset ichidan eng mos savol-javobni aniqlaydi
+- Faqat javobni qaytaradi (ortiqcha izohlarsiz)
+- Savol aniqlanmasa “Savol aniqlanmadi” degan javob beradi
+- Lotin/kirill alifbosini avtomatik moslashtiradi
+
+
+3. FOYDALANILGAN TEXNOLOGIYALAR
+
+Dasturlash tili:
+- Python 3.10+
+
+Sun’iy intellekt:
+- Google Gemini 2.5 Flash
+  Sababi:
+  - Juda tez ishlaydi
+  - Qisqa kontekstlarda aniq
+  - Semantic (mazmuniy) tahlil kuchli
+
+Telegram integratsiya:
+- python-telegram-bot kutubxonasi
+- Polling rejimi (webhook talab qilinmaydi)
+
+Konfiguratsiya va xavfsizlik:
+- python-dotenv
+- .env fayl orqali API kalitlarni saqlash
+
+Matnni qayta ishlash:
+- Maxsus yozilgan translit.py
+- Lotin/kirill aniqlash va konvertatsiya
+
+Server:
+- Linux (Ubuntu tavsiya etiladi)
+- systemd service orqali ishga tushiriladi
+
+
+4. LOYIHA FAYL TUZILMASI
+
+chatbot_Gemini/
+│
+├── bot.py
+│   Telegram bot logikasi va Gemini bilan integratsiya
+│
+├── data.json
+│   Savol-javoblar bazasi (asosiy bilim manbai)
+│
+├── translit.py
+│   Lotin/kirill aniqlash va o‘girish funksiyalari
+│
+├── requirements.txt
+│   Barcha kerakli Python kutubxonalar
+│
+├── .env
+│   Maxfiy API kalitlar
+│
+├── venv/
+│   Virtual muhit
+│
+└── README.md
+    Loyihani ishga tushirish bo‘yicha qo‘llanma
+
+
+5. ISHLASH ARXITEKTURASI
+
+1. Foydalanuvchi Telegram botga savol yuboradi
+2. Bot savolni qabul qiladi
+3. Savolning alifbosi aniqlanadi (lotin yoki kirill)
+4. Savol Gemini modeliga prompt orqali yuboriladi
+5. Prompt ichida:
+   - Foydalanuvchi savoli
+   - Datasetdagi barcha savol-javoblar kontekst sifatida beriladi
+6. Gemini:
+   - Savol mazmunini tahlil qiladi
+   - Datasetdan eng mos javobni tanlaydi
+7. Javob:
+   - Foydalanuvchi yozgan alifboga moslashtiriladi
+   - Telegram orqali foydalanuvchiga yuboriladi
+
+
+6. PROMPT DIZAYNI VA MUHIM QARORLAR
+
+Prompt dizaynida quyidagi tamoyillar ishlatilgan:
+- Modelga aniq rol berilgan (“professional AI assistant”)
+- Vazifa aniq belgilangan
+- Faqat javob qaytarish talab qilingan
+- Temperatur past (deterministik natija uchun)
+
+Bu yondashuv:
+- Javoblarning barqaror bo‘lishini ta’minlaydi
+- Keraksiz matn chiqishining oldini oladi
+
+
+7. NIMA UCHUN RAG YOKI FAISS ISHLATILMADI
+
+Hozirgi bosqichda:
+- Dataset kichik (taxminan 100 ta savol)
+- Gemini semantic matchingni mustaqil bajara oladi
+- Kod soddaroq va kam xatoli bo‘ladi
+
+Agar dataset 1000+ bo‘lsa:
+- FAISS
+- Embedding
+- Hybrid RAG + Gemini
+
+qo‘llash tavsiya etiladi
+
+
+8. OPTIMALLASHTIRISH YO‘LLARI
+
+1. Prompt optimallashtirish
+- Savol aniqlanmagan holatlar uchun aniq shartlar
+- Javobni qisqartirish
+- Noto‘g‘ri mosliklarni kamaytirish
+
+2. Dataset optimallashtirish
+- Bir xil mazmundagi savollarni birlashtirish
+- Savollarni sodda va aniq yozish
+- Javoblarni grammatik jihatdan tozalash
+
+3. Ishlash tezligini oshirish
+- Keshlash (bir xil savollar uchun)
+- Datasetni bo‘limlarga ajratish
+- Promptni qisqartirish
+
+4. Ishonchlilik
+- Xatolarni log qilish
+- Gemini javob bermasa fallback javob berish
+- systemd orqali avtomatik restart
+
+
+9. SERVERDA ISHLATISH (PRODUCTION)
+
+Bot serverda quyidagi sabablar bilan barqaror ishlaydi:
+- Polling ishlatilgan (webhook shart emas)
+- systemd service orqali ishga tushiriladi
+- Virtual muhit ajratilgan
+- API kalitlar xavfsiz saqlanadi
+
+Server qayta yuklansa ham bot avtomatik ishga tushadi
+
+
+10. XAVFSIZLIK MASALALARI
+
+- API kalitlar kod ichida yozilmagan
+- .env GitHub’ga yuklanmaydi
+- Foydalanuvchi ma’lumotlari saqlanmaydi
+- Telegram orqali faqat matnli so‘rovlar olinadi
+
+
+11. KENGAYTIRISH IMKONIYATLARI
+
+Kelajakda quyidagilarni qo‘shish mumkin:
+- Web interfeys
+- Admin panel
+- Savol-javoblarni real vaqt yangilash
+- Statistik tahlil
+- Bir nechta til qo‘llab-quvvatlash
+- Docker orqali deploy
+
+
+12. XULOSA
+
+Ushbu loyiha:
+- Oddiy keyword chatbot emas
+- To‘liq AI agent
+- Mazmunni tushunadi
+- O‘zbek tili lotin va kirill alifbosini qo‘llab-quvvatlaydi
+- Real loyihalar va buyurtmachilar uchun tayyor

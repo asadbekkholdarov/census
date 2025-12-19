@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Census 2026 Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeUp {
+        animation: fadeUp 0.35s ease-out;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100 h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white border-b px-3 py-2 sm:px-4 sm:py-3">
+      <div class="max-w-6xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <img src="./census_hub.png" class="w-7 h-7 sm:w-8 sm:h-8" />
+          <h1 class="font-semibold text-base sm:text-lg">Census GPT</h1>
+        </div>
+        <div class="text-xs sm:text-sm text-gray-600">
+          📞 <span class="font-medium">+998 (71) 202-8175</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Chat Area -->
+    <main
+      id="chat"
+      class="flex-1 overflow-y-auto px-3 py-4 sm:px-4 sm:py-6 space-y-4 max-w-4xl mx-auto w-full"
+    ></main>
+
+    <!-- Input -->
+    <footer class="bg-white border-t px-3 py-3 sm:p-4">
+      <div class="max-w-4xl mx-auto flex gap-2 sm:gap-3">
+        <input
+          id="message"
+          type="text"
+          placeholder="Savolingizni yozing..."
+          class="flex-1 border rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base focus:ring-2 focus:ring-blue-500"
+          onkeydown="if(event.key==='Enter') sendMessage()"
+        />
+        <button
+          onclick="sendMessage()"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2 sm:py-3 rounded-xl transition"
+        >
+          ➤
+        </button>
+      </div>
+    </footer>
+
+    <script>
+      const chat = document.getElementById('chat');
+      const input = document.getElementById('message');
+
+      function scrollBottom() {
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      function addUserMessage(text) {
+        chat.innerHTML += `
+          <div class="flex justify-end animate-fadeUp">
+            <div class="max-w-[85%] sm:max-w-xl bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-br-sm text-sm sm:text-base">
+              ${text}
+            </div>
+          </div>`;
+        scrollBottom();
+      }
+
+      function addBotMessage(text) {
+        chat.innerHTML += `
+          <div class="flex items-start gap-2 sm:gap-3 animate-fadeUp">
+            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-300 flex items-center justify-center text-xs font-bold">
+              AI
+            </div>
+            <div class="max-w-[85%] sm:max-w-xl bg-white border px-4 py-3 rounded-2xl rounded-bl-sm text-sm sm:text-base">
+              ${text}
+            </div>
+          </div>`;
+        scrollBottom();
+      }
+
+      function addFallbackMessage() {
+        chat.innerHTML += `
+          <div class="flex items-start gap-3 animate-fadeUp">
+            <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">
+              !
+            </div>
+            <div class="max-w-xl bg-red-50 border border-red-200 px-4 py-3 rounded-2xl text-sm">
+              ❗ Savolingizga hozircha javob topilmadi.<br />
+              Iltimos, <b>+998 (71) 202-8175</b> raqamiga bog‘laning.
+            </div>
+          </div>`;
+        scrollBottom();
+      }
+
+      function addLoading(id) {
+        chat.innerHTML += `
+          <div id="${id}" class="flex items-start gap-3 animate-fadeUp">
+            <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold">
+              AI
+            </div>
+            <div class="bg-white border px-4 py-3 rounded-2xl animate-pulse text-sm">
+              Javob yozilmoqda...
+            </div>
+          </div>`;
+        scrollBottom();
+      }
+
+      async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        addUserMessage(text);
+        input.value = '';
+
+        const loadingId = 'loading-' + Date.now();
+        addLoading(loadingId);
+
+        try {
+          const res = await fetch('https://censusgpt.onrender.com/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: text }),
+          });
+
+          const data = await res.json();
+          document.getElementById(loadingId).remove();
+
+          if (
+            !data.answer ||
+            data.answer.toLowerCase().includes('aniqlanmadi')
+          ) {
+            addFallbackMessage();
+          } else {
+            addBotMessage(data.answer);
+          }
+        } catch {
+          document.getElementById(loadingId).remove();
+          addFallbackMessage();
+        }
+      }
+
+      // 👋 Welcome message on load
+      window.onload = () => {
+        setTimeout(() => {
+          addBotMessage(
+            "👋 Sizga aholini ro'yxatga olish bo'yicha savollaringizga javob bera olaman!"
+          );
+        }, 400);
+      };
+    </script>
+  </body>
+</html>

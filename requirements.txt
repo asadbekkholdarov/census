@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+python-dotenv
+google-generativeai
+pydantic
+python-telegram-bot==20.7
+requests
+transliterate
